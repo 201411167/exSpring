@@ -60,5 +60,11 @@ public interface OwnerRepository extends Repository<Owner, Integer> {
      */
     void save(Owner owner);
 
+    @Query("SELECT DISTINCT owner FROM Owner owner left join fetch owner.pets WHERE owner.firstName LIKE :firstName%")
+    @Transactional(readOnly = true)
+    Collection<Owner> findByFirstName(String firstName);
 
+    @Query("SELECT DISTINCT owner FROM Owner owner left join fetch owner.pets WHERE owner.firstName LIKE :firstName% AND owner.lastName LIKE :lastName%")
+    @Transactional(readOnly = true)
+    Collection<Owner> findByName(String firstName, String lastName);
 }

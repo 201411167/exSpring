@@ -77,25 +77,76 @@ class OwnerController {
     @GetMapping("/owners")
     public String processFindForm(Owner owner, BindingResult result, Map<String, Object> model) {
 
+
         // allow parameterless GET request for /owners to return all records
         if (owner.getLastName() == null) {
             owner.setLastName(""); // empty string signifies broadest possible search
         }
 
+        if(owner.getFirstName() == null){
+            owner.setFirstName("");
+        }
+
+        String firstname = owner.getFirstName();
+        String lastname = owner.getLastName();
+
         // find owners by last name
-        Collection<Owner> results = this.owners.findByLastName(owner.getLastName());
-        if (results.isEmpty()) {
-            // no owners found
-            result.rejectValue("lastName", "notFound", "not found");
-            return "owners/findOwners";
-        } else if (results.size() == 1) {
-            // 1 owner found
-            owner = results.iterator().next();
-            return "redirect:/owners/" + owner.getId();
-        } else {
-            // multiple owners found
+        Collection<Owner> resultsLastName = this.owners.findByLastName(owner.getLastName());
+        Collection<Owner> resultsFirstName = this.owners.findByFirstName(owner.getFirstName());
+        Collection<Owner> results = this.owners.findByName(owner.getFirstName(), owner.getLastName());
+
+        if(firstname == "" && lastname == ""){
+            // show all owners
             model.put("selections", results);
             return "owners/ownersList";
+        }
+        if(firstname != "" && lastname != ""){
+            // trying to search by firstname and lastname
+            if(results.isEmpty()){
+                result.rejectValue("name","not found");
+                return "owners/findOwners";
+            }
+            else if(results.size() == 1){
+                owner = results.iterator().next();
+                return "redirect:/owners/" + owner.getId();
+            }
+            else{
+                model.put("selections", results);
+                return "owners/ownersList";
+            }
+        }
+        if(firstname == "" && lastname != ""){
+            // trying to search by lastname
+            if(resultsLastName.isEmpty()){
+                result.rejectValue("last name","not found");
+                return "owners/findOwners";
+            }
+            else if(resultsLastName.size()==1){
+                owner = resultsLastName.iterator().next();
+                return "redirect:/owners/" + owner.getId();
+            }
+            else{
+                model.put("selections", resultsLastName);
+                return "owners/ownersList";
+            }
+        }
+        if(firstname != "" && lastname == ""){
+            // trying to search by firstname
+            if(resultsFirstName.isEmpty()){
+                result.rejectValue("first name", "not found");
+                return "owners/findOwners";
+            }
+            else if(resultsFirstName.size()==1){
+                owner = resultsFirstName.iterator().next();
+                return "redirect:/owners/" + owner.getId();
+            }
+            else{
+                model.put("selections", resultsFirstName);
+                return "owners/ownersList";
+            }
+        }
+        else{
+            return "owners/findOwners";
         }
     }
 
