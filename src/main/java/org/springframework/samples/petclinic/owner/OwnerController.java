@@ -103,7 +103,7 @@ class OwnerController {
         if(firstname != "" && lastname != ""){
             // trying to search by firstname and lastname
             if(results.isEmpty()){
-                result.rejectValue("name","not found");
+                //result.rejectValue("name","not found");
                 return "owners/findOwners";
             }
             else if(results.size() == 1){
@@ -118,7 +118,7 @@ class OwnerController {
         if(firstname == "" && lastname != ""){
             // trying to search by lastname
             if(resultsLastName.isEmpty()){
-                result.rejectValue("last name","not found");
+                //result.rejectValue("last name","not found");
                 return "owners/findOwners";
             }
             else if(resultsLastName.size()==1){
@@ -133,7 +133,7 @@ class OwnerController {
         if(firstname != "" && lastname == ""){
             // trying to search by firstname
             if(resultsFirstName.isEmpty()){
-                result.rejectValue("first name", "not found");
+                //result.rejectValue("first name", "not found");
                 return "owners/findOwners";
             }
             else if(resultsFirstName.size()==1){
