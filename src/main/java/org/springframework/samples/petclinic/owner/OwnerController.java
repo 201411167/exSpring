@@ -15,14 +15,12 @@
  */
 package org.springframework.samples.petclinic.owner;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
@@ -40,10 +38,17 @@ class OwnerController {
 
     private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
     private final OwnerRepository owners;
+    private final ApplicationContext applicationContext;
 
-
-    public OwnerController(OwnerRepository clinicService) {
+    public OwnerController(OwnerRepository clinicService, ApplicationContext context) {
         this.owners = clinicService;
+        this.applicationContext = context;
+    }
+
+    @GetMapping
+    @ResponseBody
+    public String bean(){
+        return "bean : " + applicationContext.getBean(OwnerController.class);
     }
 
     @InitBinder
@@ -103,7 +108,7 @@ class OwnerController {
         if(firstname != "" && lastname != ""){
             // trying to search by firstname and lastname
             if(results.isEmpty()){
-                //result.rejectValue("name","not found");
+                result.rejectValue("lastName", "notFound", "not found");
                 return "owners/findOwners";
             }
             else if(results.size() == 1){
@@ -118,7 +123,7 @@ class OwnerController {
         if(firstname == "" && lastname != ""){
             // trying to search by lastname
             if(resultsLastName.isEmpty()){
-                //result.rejectValue("last name","not found");
+                result.rejectValue("lastName", "notFound", "not found");
                 return "owners/findOwners";
             }
             else if(resultsLastName.size()==1){
@@ -133,7 +138,7 @@ class OwnerController {
         if(firstname != "" && lastname == ""){
             // trying to search by firstname
             if(resultsFirstName.isEmpty()){
-                //result.rejectValue("first name", "not found");
+                result.rejectValue("lastName", "notFound", "not found");
                 return "owners/findOwners";
             }
             else if(resultsFirstName.size()==1){
