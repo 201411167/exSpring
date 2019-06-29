@@ -15,6 +15,7 @@
  */
 package org.springframework.samples.petclinic.owner;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,24 +32,23 @@ import java.util.Map;
  * @author Juergen Hoeller
  * @author Ken Krebs
  * @author Arjen Poutsma
- * @author Michael Isvy
+ * @author Michael Isvyb
  */
 @Controller
 class OwnerController {
 
     private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
     private final OwnerRepository owners;
-    private final ApplicationContext applicationContext;
 
-    public OwnerController(OwnerRepository clinicService, ApplicationContext context) {
+    @Autowired
+    public OwnerController(OwnerRepository clinicService) {
         this.owners = clinicService;
-        this.applicationContext = context;
     }
 
-    @GetMapping
+    @GetMapping("/bean")
     @ResponseBody
     public String bean(){
-        return "bean : " + applicationContext.getBean(OwnerController.class);
+        return "bean : " + owners;
     }
 
     @InitBinder
