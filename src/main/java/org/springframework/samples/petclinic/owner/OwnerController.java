@@ -16,7 +16,6 @@
 package org.springframework.samples.petclinic.owner;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -46,6 +45,7 @@ class OwnerController {
     }
 
     @GetMapping("/bean")
+    @LogExecutionTime
     @ResponseBody
     public String bean(){
         return "bean : " + owners;
@@ -100,58 +100,41 @@ class OwnerController {
         Collection<Owner> resultsFirstName = this.owners.findByFirstName(owner.getFirstName());
         Collection<Owner> results = this.owners.findByName(owner.getFirstName(), owner.getLastName());
 
-        if(firstname == "" && lastname == ""){
+        if(firstname.equals("") && lastname.equals("")){
             // show all owners
             model.put("selections", results);
             return "owners/ownersList";
         }
-        if(firstname != "" && lastname != ""){
+        if(!firstname.equals("") && !lastname.equals("")){
             // trying to search by firstname and lastname
-            if(results.isEmpty()){
-                result.rejectValue("lastName", "notFound", "not found");
-                return "owners/findOwners";
-            }
-            else if(results.size() == 1){
-                owner = results.iterator().next();
-                return "redirect:/owners/" + owner.getId();
-            }
-            else{
-                model.put("selections", results);
-                return "owners/ownersList";
-            }
+            return exceptionalCase(result, model, results);
         }
-        if(firstname == "" && lastname != ""){
+        if(firstname.equals("") && !lastname.equals("")){
             // trying to search by lastname
-            if(resultsLastName.isEmpty()){
-                result.rejectValue("lastName", "notFound", "not found");
-                return "owners/findOwners";
-            }
-            else if(resultsLastName.size()==1){
-                owner = resultsLastName.iterator().next();
-                return "redirect:/owners/" + owner.getId();
-            }
-            else{
-                model.put("selections", resultsLastName);
-                return "owners/ownersList";
-            }
+            return exceptionalCase(result, model, resultsLastName);
         }
-        if(firstname != "" && lastname == ""){
+        if(!firstname.equals("") && lastname.equals("")){
             // trying to search by firstname
-            if(resultsFirstName.isEmpty()){
-                result.rejectValue("lastName", "notFound", "not found");
-                return "owners/findOwners";
-            }
-            else if(resultsFirstName.size()==1){
-                owner = resultsFirstName.iterator().next();
-                return "redirect:/owners/" + owner.getId();
-            }
-            else{
-                model.put("selections", resultsFirstName);
-                return "owners/ownersList";
-            }
+            return exceptionalCase(result, model, resultsFirstName);
         }
         else{
             return "owners/findOwners";
+        }
+    }
+
+    private String exceptionalCase(BindingResult result, Map<String, Object> model, Collection<Owner> results) {
+        Owner owner;
+        if(results.isEmpty()){
+            result.rejectValue("lastName", "notFound", "not found");
+            return "owners/findOwners";
+        }
+        else if(results.size() == 1){
+            owner = results.iterator().next();
+            return "redirect:/owners/" + owner.getId();
+        }
+        else{
+            model.put("selections", results);
+            return "owners/ownersList";
         }
     }
 
